@@ -33,19 +33,28 @@ import org.jboss.javassist.classfilewriter.proxyfactory.ProxyHandler;
 public class HandlerCallingTarget<T> extends ProxyHandler<T>{
 
     Method m;
-    Object[] args;
-    T instance;
     
-    protected HandlerCallingTarget(T instance) {
+    Object[] replacementArgs;
+    
+    public HandlerCallingTarget(T instance, Object[] replacementArgs) {
         super(instance);
+        this.replacementArgs = replacementArgs;
+    }
+    
+    @Override
+    protected boolean finalCallInHandler(Method m) {
+        return true;
     }
 
     @Override
     protected Object invokeMethod(T instance, Method m, Object[] args) {
         this.m = m;
-        this.args = args;
-        this.instance = instance;
-        return null;
+        
+        try {
+            return m.invoke(instance, replacementArgs);
+        }catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
 }

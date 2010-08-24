@@ -32,7 +32,7 @@ import org.junit.Test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class PrimitiveArrayProxyFactoryHandlerTestCase {
+public class PrimitiveArrayProxyFactoryCalledByWrapperTestCase {
     
     @Test
     public void testBooleanMethod() throws Exception {

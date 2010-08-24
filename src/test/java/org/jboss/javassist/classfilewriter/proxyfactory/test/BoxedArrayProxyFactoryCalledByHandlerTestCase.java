@@ -22,7 +22,6 @@
 package org.jboss.javassist.classfilewriter.proxyfactory.test;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertSame;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
 import org.junit.Test;
@@ -32,117 +31,93 @@ import org.junit.Test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class BoxedArrayProxyFactoryHandlerTestCase {
+public class BoxedArrayProxyFactoryCalledByHandlerTestCase {
     
     @Test
     public void testBooleanMethod() throws Exception {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Boolean[] b = new Boolean[] {true, false, true};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {b});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
         
-        Boolean[] b = new Boolean[] {true, false, true};
-        assertEquals(b, proxy.testBooleanArray(b));
+        assertEquals(b, proxy.testBooleanArray(new Boolean[] {true, true}));
         assertEquals("testBooleanArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(b, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testByteMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Byte[] b = new Byte[] {1, 2, 3};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {b});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
     
-        Byte[] b = new Byte[] {1, 2, 3};
-        assertEquals(b, proxy.testByteArray(b));
+        assertEquals(b, proxy.testByteArray(new Byte[] {3, 2, 1}));
         assertEquals("testByteArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(b, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testCharMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Character[] c = new Character[] {'a', 'b'};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {c});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
         
-        Character[] c = new Character[] {'a', 'b'};
-        assertEquals(c, proxy.testCharArray(c));
+        assertEquals(c, proxy.testCharArray(new Character[] {'f', 'g'}));
         assertEquals("testCharArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(c, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testDoubleMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Double[] d = new Double[] {1d, 2d};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {d});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
     
-        Double[] d = new Double[] {1d, 2d};
-        assertEquals(d, proxy.testDoubleArray(d));
+        assertEquals(d, proxy.testDoubleArray(new Double[] {5d, 3d}));
         assertEquals("testDoubleArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(d, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testFloatMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Float[] f = new Float[] {1.0f, 2.0f};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {f});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
         
-        Float[] f = new Float[] {1.0f, 2.0f};
-        assertEquals(f, proxy.testFloatArray(f));
+        assertEquals(f, proxy.testFloatArray(new Float[] {4f, 5f}));
         assertEquals("testFloatArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(f, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testIntMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Integer[] i = new Integer[] {1, 2};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {i});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
     
-        Integer[] i = new Integer[] {1, 2};
-        assertEquals(i, proxy.testIntArray(i));
+        assertEquals(i, proxy.testIntArray(new Integer[] {5, 6}));
         assertEquals("testIntArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(i, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testLongMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Long[] l = new Long[] {123L, 234L};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {l});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
      
-        Long[] l = new Long[] {123L, 234L};
-        assertEquals(l, proxy.testLongArray(l));
+        assertEquals(l, proxy.testLongArray(new Long[] {555L, 444L}));
         assertEquals("testLongArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(l, handler.args[0]);
-        assertSame(target, handler.instance);
     }
     
     @Test
     public void testShortMethod() {
         BoxedArrayClass target = new BoxedArrayClass();
-        HandlerNotCallingTarget<BoxedArrayClass> handler = new HandlerNotCallingTarget<BoxedArrayClass>(target);
+        Short[] s = new Short[] {3, 4};
+        HandlerCallingTarget<BoxedArrayClass> handler = new HandlerCallingTarget<BoxedArrayClass>(target, new Object[] {s});
         BoxedArrayClass proxy = ProxyFactory.createProxy(BoxedArrayClass.class, handler);
      
-        Short[] s = new Short[] {3, 4};
-        assertEquals(s, proxy.testShortArray(s));
+        assertEquals(s, proxy.testShortArray(new Short[] {4, 5}));
         assertEquals("testShortArray", handler.m.getName());
-        assertEquals(1, handler.args.length);
-        assertEquals(s, handler.args[0]);
-        assertSame(target, handler.instance);
     }
 }

@@ -31,10 +31,14 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision: 1.1 $
  */
 @SuiteClasses({BasicProxyFactoryTestCase.class,
-    PrimitiveProxyFactoryHandlerTestCase.class, 
-    BoxedProxyFactoryHandlerTestCase.class,
-    PrimitiveProxyFactoryHandlerTestCase.class,
-    BoxedArrayProxyFactoryHandlerTestCase.class})
+    PrimitiveProxyFactoryCalledByWrapperTestCase.class, 
+    PrimitiveProxyFactoryCalledByHandlerTestCase.class,
+    BoxedProxyFactoryCalledByWrapperTestCase.class,
+    BoxedProxyFactoryCalledByHandlerTestCase.class,
+    PrimitiveArrayProxyFactoryCalledByWrapperTestCase.class,
+    PrimitiveArrayProxyFactoryCalledByHandlerTestCase.class,
+    BoxedArrayProxyFactoryCalledByWrapperTestCase.class,
+    BoxedArrayProxyFactoryCalledByHandlerTestCase.class})
 @RunWith(Suite.class)
 public class AllTests {
 

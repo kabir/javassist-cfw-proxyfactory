@@ -30,13 +30,13 @@ import org.jboss.javassist.classfilewriter.proxyfactory.ProxyHandler;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class SimpleHandler<T> extends ProxyHandler<T>{
+public class HandlerNotCallingTarget<T> extends ProxyHandler<T>{
 
     Method m;
     Object[] args;
     T instance;
     
-    protected SimpleHandler(T instance) {
+    protected HandlerNotCallingTarget(T instance) {
         super(instance);
     }
 

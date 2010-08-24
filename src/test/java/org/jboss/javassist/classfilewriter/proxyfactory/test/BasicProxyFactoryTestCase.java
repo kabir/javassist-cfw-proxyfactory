@@ -42,7 +42,7 @@ public class BasicProxyFactoryTestCase {
     @SuppressWarnings("unchecked")
     public void testProxyFactoryHandlerSetter() throws Exception {
         PrimitiveClass target = new PrimitiveClass();
-        SimpleHandler<PrimitiveClass> handler = new SimpleHandler<PrimitiveClass>(target);
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
         PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         assertNotNull(proxy);
         assertNotSame(PrimitiveClass.class, proxy.getClass());
@@ -51,14 +51,14 @@ public class BasicProxyFactoryTestCase {
         field.setAccessible(true);
         Object o = field.get(proxy);
         assertNotNull(o);
-        assertTrue(o instanceof SimpleHandler);
+        assertTrue(o instanceof HandlerNotCallingTarget);
         assertSame(handler, o);
     }
     
     @Test
     public void testNoArgsVoidMethod() throws Exception {
         PrimitiveClass target = new PrimitiveClass();
-        SimpleHandler<PrimitiveClass> handler = new SimpleHandler<PrimitiveClass>(target);
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
         PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
         proxy.test();
@@ -70,7 +70,7 @@ public class BasicProxyFactoryTestCase {
     @Test
     public void testOverriddenMethod() throws Exception {
         ChildClass target = new ChildClass();
-        SimpleHandler<ChildClass> handler = new SimpleHandler<ChildClass>(target);
+        HandlerNotCallingTarget<ChildClass> handler = new HandlerNotCallingTarget<ChildClass>(target);
         ChildClass proxy = ProxyFactory.createProxy(ChildClass.class, handler);
         
         Object ret = proxy.overridden(12, 10);

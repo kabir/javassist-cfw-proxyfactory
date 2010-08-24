@@ -33,13 +33,26 @@ import org.junit.Test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class BoxedProxyFactoryTestCase {
+public class PrimitiveProxyFactoryHandlerTestCase {
+    
+    @Test
+    public void testStringMethod() throws Exception {
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
+        
+        assertEquals("Test", proxy.testString("Test"));
+        assertEquals("testString", handler.m.getName());
+        assertEquals(1, handler.args.length);
+        assertEquals("Test", handler.args[0]);
+        assertSame(target, handler.instance);
+    }
     
     @Test
     public void testBooleanMethod() throws Exception {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
         assertTrue(proxy.testBoolean(true));
         assertEquals("testBoolean", handler.m.getName());
@@ -50,11 +63,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testByteMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals((byte)2, proxy.testByte((byte)2).byteValue());
+        assertEquals((byte)2, proxy.testByte((byte)2));
         assertEquals("testByte", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals((byte)2, ((Byte)handler.args[0]).byteValue());
@@ -63,11 +76,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testCharMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals('a', proxy.testChar('a').charValue());
+        assertEquals('a', proxy.testChar('a'));
         assertEquals("testChar", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals('a', ((Character)handler.args[0]).charValue());
@@ -76,11 +89,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testDoubleMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals(457.0d, proxy.testDouble(457.0d).doubleValue());
+        assertEquals(457.0d, proxy.testDouble(457.0d));
         assertEquals("testDouble", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals(457.0d, ((Double)handler.args[0]).doubleValue());
@@ -89,11 +102,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testFloatMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals(6.0f, proxy.testFloat(6.0f).floatValue());
+        assertEquals(6.0f, proxy.testFloat(6.0f));
         assertEquals("testFloat", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals(6.0f, ((Float)handler.args[0]).floatValue());
@@ -102,11 +115,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testIntMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals(123, proxy.testInt(123).intValue());
+        assertEquals(123, proxy.testInt(123));
         assertEquals("testInt", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals(123, ((Integer)handler.args[0]).intValue());
@@ -115,11 +128,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testLongMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals(12399L, proxy.testLong(12399L).longValue());
+        assertEquals(12399L, proxy.testLong(12399L));
         assertEquals("testLong", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals(12399L, ((Long)handler.args[0]).longValue());
@@ -128,11 +141,11 @@ public class BoxedProxyFactoryTestCase {
     
     @Test
     public void testShortMethod() {
-        BoxedClass target = new BoxedClass();
-        SimpleHandler<BoxedClass> handler = new SimpleHandler<BoxedClass>(target);
-        BoxedClass proxy = ProxyFactory.createProxy(BoxedClass.class, handler);
+        PrimitiveClass target = new PrimitiveClass();
+        HandlerNotCallingTarget<PrimitiveClass> handler = new HandlerNotCallingTarget<PrimitiveClass>(target);
+        PrimitiveClass proxy = ProxyFactory.createProxy(PrimitiveClass.class, handler);
         
-        assertEquals((short)78, proxy.testShort((short)78).shortValue());
+        assertEquals((short)78, proxy.testShort((short)78));
         assertEquals("testShort", handler.m.getName());
         assertEquals(1, handler.args.length);
         assertEquals((short)78, ((Short)handler.args[0]).shortValue());

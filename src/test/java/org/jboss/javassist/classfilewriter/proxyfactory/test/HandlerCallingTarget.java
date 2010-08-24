@@ -21,21 +21,31 @@
  */
 package org.jboss.javassist.classfilewriter.proxyfactory.test;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import java.lang.reflect.Method;
+
+import org.jboss.javassist.classfilewriter.proxyfactory.ProxyHandler;
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-@SuiteClasses({BasicProxyFactoryTestCase.class,
-    PrimitiveProxyFactoryHandlerTestCase.class, 
-    BoxedProxyFactoryHandlerTestCase.class,
-    PrimitiveProxyFactoryHandlerTestCase.class,
-    BoxedArrayProxyFactoryHandlerTestCase.class})
-@RunWith(Suite.class)
-public class AllTests {
+public class HandlerCallingTarget<T> extends ProxyHandler<T>{
 
+    Method m;
+    Object[] args;
+    T instance;
+    
+    protected HandlerCallingTarget(T instance) {
+        super(instance);
+    }
+
+    @Override
+    protected Object invokeMethod(T instance, Method m, Object[] args) {
+        this.m = m;
+        this.args = args;
+        this.instance = instance;
+        return null;
+    }
+    
 }

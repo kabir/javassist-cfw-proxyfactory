@@ -173,6 +173,27 @@ public class BasicProxyFactoryTestCase {
             fail("Should have had error");
         }catch(IllegalArgumentException expected) {
         }
+    }
+    
+    @Test
+    public void testCanProxyStaticInnerClass() throws Exception{
+        ClassWithInnerClasses.StaticClass target = new ClassWithInnerClasses.StaticClass();
+        HandlerNotCallingTarget<ClassWithInnerClasses.StaticClass> handler = new HandlerNotCallingTarget<ClassWithInnerClasses.StaticClass>(target);
+        ClassWithInnerClasses.StaticClass proxy = ProxyFactory.createProxy(ClassWithInnerClasses.StaticClass.class, handler);
+        
+        proxy.method();
+        assertEquals("method", handler.m.getName());
+    }
+    
+    @Test
+    public void testCannotProxyNonStaticInnerClass() throws Exception{
+        ClassWithInnerClasses.NonStaticClass target = new ClassWithInnerClasses().getNonStaticInstance();
+        HandlerNotCallingTarget<ClassWithInnerClasses.NonStaticClass> handler = new HandlerNotCallingTarget<ClassWithInnerClasses.NonStaticClass>(target);
+        try {
+            ClassWithInnerClasses.NonStaticClass proxy = ProxyFactory.createProxy(ClassWithInnerClasses.NonStaticClass.class, handler);
+            fail("Should have had error");
+        }catch (IllegalArgumentException expected) {
+        }
         
         
     }

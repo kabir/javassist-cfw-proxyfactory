@@ -266,6 +266,8 @@ public final class ProxyFactory<T> {
             throw new IllegalArgumentException("Cannot proxy private class " + clazz.getName());
         if (Modifier.isFinal(modifier))
             throw new IllegalArgumentException("Cannot proxy final class " + clazz.getName());
+        if (clazz.getDeclaringClass() != null && !Modifier.isStatic(modifier))
+            throw new IllegalArgumentException("Cannot proxy non-static inner class " + clazz.getName());
     }
 
     private static void checkDefaultConstructor(Class<?> clazz) {

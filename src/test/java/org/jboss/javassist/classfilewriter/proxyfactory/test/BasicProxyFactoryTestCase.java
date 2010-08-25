@@ -33,6 +33,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.ChildClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.ClassWithInnerClasses;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.CornerCaseClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.FinalClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.PrimitiveClass;
 import org.junit.Test;
 
 /**
@@ -190,7 +195,7 @@ public class BasicProxyFactoryTestCase {
         ClassWithInnerClasses.NonStaticClass target = new ClassWithInnerClasses().getNonStaticInstance();
         HandlerNotCallingTarget<ClassWithInnerClasses.NonStaticClass> handler = new HandlerNotCallingTarget<ClassWithInnerClasses.NonStaticClass>(target);
         try {
-            ClassWithInnerClasses.NonStaticClass proxy = ProxyFactory.createProxy(ClassWithInnerClasses.NonStaticClass.class, handler);
+            ProxyFactory.createProxy(ClassWithInnerClasses.NonStaticClass.class, handler);
             fail("Should have had error");
         }catch (IllegalArgumentException expected) {
         }

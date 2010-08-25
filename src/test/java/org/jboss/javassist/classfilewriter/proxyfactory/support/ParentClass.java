@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public final class FinalClass {
-    void test() {
-        
+public class ParentClass {
+    public Object overridden(int i, int j) {
+        return new Integer(i);
     }
 }

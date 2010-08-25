@@ -19,17 +19,53 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
+
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class ChildClass extends ParentClass{
+public class PrimitiveClass {
+
+    public void test() {
+        System.out.println("Hello");
+    }
     
-    @Override
-    public String overridden(int i, int j) {
-        return String.valueOf(i);
+    public String testString(String s) {
+        return s;
+    }
+
+    public boolean testBoolean(boolean b) {
+        return b;
+    }
+    
+    public byte testByte(byte b) {
+        return b;
+    }
+    
+    public char testChar(char c) {
+        return c;
+    }
+    
+    public double testDouble(double d) {
+        return d;
+    }
+    
+    public float testFloat(float f) {
+        return f;
+    }
+    
+    public int testInt(int i) {
+        return i;
+    }
+    
+    public long testLong(long l) {
+        return l;
+    }
+    
+    public short testShort(short s) {
+        return s;
     }
 }

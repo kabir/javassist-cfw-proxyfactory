@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.BoxedClass;
 import org.junit.Test;
 
 /**

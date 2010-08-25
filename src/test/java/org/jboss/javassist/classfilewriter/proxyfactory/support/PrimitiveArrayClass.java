@@ -19,28 +19,48 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
+
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class ClassWithInnerClasses {
+public class PrimitiveArrayClass {
+    public String[] testStringArray(String[] s) {
+        return s;
+    }
 
-    public static class StaticClass{
-        void method() {
-            
-        }
+    public boolean[] testBooleanArray(boolean[] b) {
+        return b;
     }
     
-    public class NonStaticClass{
-        void method() {
-            
-        }
+    public byte[] testByteArray(byte[] b) {
+        return b;
     }
     
-    public NonStaticClass getNonStaticInstance() {
-        return new NonStaticClass();
+    public char[] testCharArray(char[] c) {
+        return c;
+    }
+    
+    public double[] testDoubleArray(double[] d) {
+        return d;
+    }
+    
+    public float[] testFloatArray(float[] f) {
+        return f;
+    }
+    
+    public int[] testIntArray(int[] i) {
+        return i;
+    }
+    
+    public long[] testLongArray(long[] l) {
+        return l;
+    }
+    
+    public short[] testShortArray(short[] s) {
+        return s;
     }
 }

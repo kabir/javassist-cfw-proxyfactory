@@ -19,45 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
-
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class BoxedClass {
-
-    public Boolean testBoolean(Boolean b) {
-        return b;
+public class CornerCaseClass {
+    
+    public static void staticMethod() {
+        
     }
     
-    public Byte testByte(Byte b) {
-        return b;
+    public final void finalMethod() {
+        
     }
     
-    public Character testChar(Character c) {
-        return c;
+    @SuppressWarnings("unused")
+    private void privateMethod() {
+        
     }
     
-    public Double testDouble(Double d) {
-        return d;
+    protected void protectedMethod() {
+        
     }
     
-    public Float testFloat(Float f) {
-        return f;
+    void packageProtectedMethod() {
+        
     }
     
-    public Integer testInt(Integer i) {
-        return i;
-    }
-    
-    public Long testLong(Long l) {
-        return l;
-    }
-    
-    public Short testShort(Short s) {
-        return s;
+    public String mixedParameters(int i, double d, float f, long l, short s) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(i);
+        sb.append("-");
+        sb.append(Math.round(d));
+        sb.append("-");
+        sb.append(Math.round(f));
+        sb.append("-");
+        sb.append(l);
+        sb.append("-");
+        sb.append(s);
+        return sb.toString();
     }
 }

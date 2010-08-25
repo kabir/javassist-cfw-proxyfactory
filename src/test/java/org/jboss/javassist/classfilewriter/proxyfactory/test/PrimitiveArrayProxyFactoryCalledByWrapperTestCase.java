@@ -25,6 +25,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertSame;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.PrimitiveArrayClass;
 import org.junit.Test;
 
 /**

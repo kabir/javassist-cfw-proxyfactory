@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
 
 
 /**
@@ -27,40 +27,36 @@ package org.jboss.javassist.classfilewriter.proxyfactory.test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class PrimitiveArrayClass {
-    public String[] testStringArray(String[] s) {
-        return s;
-    }
-
-    public boolean[] testBooleanArray(boolean[] b) {
+public class BoxedArrayClass {
+    public Boolean[] testBooleanArray(Boolean[] b) {
         return b;
     }
     
-    public byte[] testByteArray(byte[] b) {
+    public Byte[] testByteArray(Byte[] b) {
         return b;
     }
     
-    public char[] testCharArray(char[] c) {
+    public Character[] testCharArray(Character[] c) {
         return c;
     }
     
-    public double[] testDoubleArray(double[] d) {
+    public Double[] testDoubleArray(Double[] d) {
         return d;
     }
     
-    public float[] testFloatArray(float[] f) {
+    public Float[] testFloatArray(Float[] f) {
         return f;
     }
     
-    public int[] testIntArray(int[] i) {
+    public Integer[] testIntArray(Integer[] i) {
         return i;
     }
     
-    public long[] testLongArray(long[] l) {
+    public Long[] testLongArray(Long[] l) {
         return l;
     }
     
-    public short[] testShortArray(short[] s) {
+    public Short[] testShortArray(Short[] s) {
         return s;
     }
 }

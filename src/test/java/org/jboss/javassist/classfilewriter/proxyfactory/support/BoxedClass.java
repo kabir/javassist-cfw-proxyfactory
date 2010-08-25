@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
 
 
 /**
@@ -27,36 +27,37 @@ package org.jboss.javassist.classfilewriter.proxyfactory.test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class BoxedArrayClass {
-    public Boolean[] testBooleanArray(Boolean[] b) {
+public class BoxedClass {
+
+    public Boolean testBoolean(Boolean b) {
         return b;
     }
     
-    public Byte[] testByteArray(Byte[] b) {
+    public Byte testByte(Byte b) {
         return b;
     }
     
-    public Character[] testCharArray(Character[] c) {
+    public Character testChar(Character c) {
         return c;
     }
     
-    public Double[] testDoubleArray(Double[] d) {
+    public Double testDouble(Double d) {
         return d;
     }
     
-    public Float[] testFloatArray(Float[] f) {
+    public Float testFloat(Float f) {
         return f;
     }
     
-    public Integer[] testIntArray(Integer[] i) {
+    public Integer testInt(Integer i) {
         return i;
     }
     
-    public Long[] testLongArray(Long[] l) {
+    public Long testLong(Long l) {
         return l;
     }
     
-    public Short[] testShortArray(Short[] s) {
+    public Short testShort(Short s) {
         return s;
     }
 }

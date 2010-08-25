@@ -37,6 +37,7 @@ import org.jboss.javassist.classfilewriter.proxyfactory.support.ChildClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.ClassWithInnerClasses;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.CornerCaseClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.FinalClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.JohnExampleFailure;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.PrimitiveClass;
 import org.junit.Test;
 
@@ -199,7 +200,19 @@ public class BasicProxyFactoryTestCase {
             fail("Should have had error");
         }catch (IllegalArgumentException expected) {
         }
-        
-        
     }
+    
+    @Test
+    public void testJohnExampleFailure() throws Exception {
+        JohnExampleFailure target = new JohnExampleFailure();
+        HandlerNotCallingTarget<JohnExampleFailure> handler = new HandlerNotCallingTarget<JohnExampleFailure>(target);
+        JohnExampleFailure proxy = ProxyFactory.createProxy(JohnExampleFailure.class, handler);
+        
+        assertNull(proxy.getOther());
+        assertEquals("getOther", handler.m.getName());
+        assertEquals(0, handler.args.length);
+        assertSame(target, handler.instance);
+    }
+    
+    
 }

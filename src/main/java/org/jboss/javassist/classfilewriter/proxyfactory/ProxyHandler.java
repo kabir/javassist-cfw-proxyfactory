@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Provide an subclass of this to handle proxy calls.
+ * Provide a subclass of this to handle proxy calls.
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
@@ -38,8 +38,15 @@ public abstract class ProxyHandler<T> {
     
     private volatile Map<String, Method> methods;
     
-    
+    /**
+     * Constructor
+     * 
+     * @param instance the instance we want to proxy
+     * @throws IllegalArgumentException if <code>instance</code> is null
+     */
     protected ProxyHandler(T instance) {
+        if (instance == null)
+            throw new IllegalArgumentException("Null instance");
         this.instance = instance;
     }
     

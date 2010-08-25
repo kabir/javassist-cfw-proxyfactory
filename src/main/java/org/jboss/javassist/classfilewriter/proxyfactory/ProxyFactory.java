@@ -35,6 +35,10 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * Factory to create proxies for a class. The proxies are currently
+ * "dumb", i.e. they just override the selected methods with no 
+ * annotations or Signature attributes.
+ * 
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
@@ -49,8 +53,7 @@ public final class ProxyFactory<T> {
 
     private static final String PROXY_HANDLER_SIGNATURE = "L" + PROXY_HANDLER_FIELD_TYPE + ";";
 
-    private static final String SET_PROXY_HANDLER_SIGNATURE = "(L" + ProxyHandler.class.getName().replace('.', '/')
-            + ";)V";
+    private static final String SET_PROXY_HANDLER_SIGNATURE = "(L" + ProxyHandler.class.getName().replace('.', '/') + ";)V";
 
     private static final String[] INTERFACES = new String[] { ProxyHandlerSetter.class.getName().replace('.', '/') };
 
@@ -67,6 +70,39 @@ public final class ProxyFactory<T> {
         // TODO might need an interface on the proxy to set the handler?
         context = new ClassFileWriterContext<T>(clazz.getName() + "$$Proxy$$" + COUNTER.incrementAndGet(), clazz
                 .getName(), INTERFACES);
+    }
+
+    /**
+     * Create a proxy instance.
+     * 
+     * @param clazz the class we want to proxy
+     * @param handler a proxy handler for the instance we want to proxy
+     * @return the proxy
+     * @throws IllegalArgumentException if the class is not proxyable
+     * @throws RuntimeException if there was an error
+     */
+    public static <T> T createProxy(Class<T> clazz, ProxyHandler<T> handler) {
+        if (clazz == null)
+            throw new IllegalArgumentException("Null clazz");
+        if (handler == null)
+            throw new IllegalArgumentException("Null handler");
+
+        // TODO cache classes
+
+        checkClassModifiers(clazz);
+        checkDefaultConstructor(clazz);
+        Set<MethodInformation> methodSet = MethodInformation.getProxyableMethods(clazz);
+        ProxyFactory<T> factory = new ProxyFactory<T>(clazz, handler, methodSet);
+        Class<T> proxyClass = factory.createProxy();
+
+        try {
+            T proxy = proxyClass.newInstance();
+            ((ProxyHandlerSetter) proxy).setProxyHandler(handler);
+            handler.setMethods(methodSet);
+            return proxy;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Class<T> createProxy() {
@@ -231,26 +267,6 @@ public final class ProxyFactory<T> {
 
         try {
             return context.toClass(cl, clazz.getProtectionDomain());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static <T> T createProxy(Class<T> clazz, ProxyHandler<T> handler) {
-
-        // TODO cache classes
-
-        checkClassModifiers(clazz);
-        checkDefaultConstructor(clazz);
-        Set<MethodInformation> methodSet = MethodInformation.getProxyableMethods(clazz);
-        ProxyFactory<T> factory = new ProxyFactory<T>(clazz, handler, methodSet);
-        Class<T> proxyClass = factory.createProxy();
-
-        try {
-            T proxy = proxyClass.newInstance();
-            ((ProxyHandlerSetter) proxy).setProxyHandler(handler);
-            handler.setMethods(methodSet);
-            return proxy;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

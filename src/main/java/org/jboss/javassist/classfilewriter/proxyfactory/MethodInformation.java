@@ -22,9 +22,13 @@
 package org.jboss.javassist.classfilewriter.proxyfactory;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Utility class to get hold of the information from a method in jvm format
@@ -34,6 +38,8 @@ import java.util.Map;
  */
 final class MethodInformation {
     private static final String[] NO_EXCEPTIONS = new String[0];
+    
+    private static final Map<Class<?>, Set<MethodInformation>> CACHE = Collections.synchronizedMap(new WeakHashMap<Class<?>, Set<MethodInformation>>());
     
     static final Map<Class<?>, Character> PRIMITIVE_DESCRIPTORS;
     static {
@@ -60,6 +66,7 @@ final class MethodInformation {
     private volatile String nameAndFillSignature;
     private volatile String[] exceptions;
     private final int hashCode;
+    
     
     
     MethodInformation(Method method) {
@@ -157,4 +164,42 @@ final class MethodInformation {
     public int hashCode() {
         return hashCode; 
     }
+    
+    static Set<MethodInformation> getProxyableMethods(Class<?> clazz) {
+        
+        Set<MethodInformation> methodSet = CACHE.get(clazz); 
+        if (methodSet != null)
+            return methodSet;
+            
+        methodSet = new HashSet<MethodInformation>();
+        getProxyableMethods(methodSet, clazz);
+        
+        CACHE.put(clazz, methodSet);
+        return new HashSet<MethodInformation>(methodSet);
+    }
+
+    private static void getProxyableMethods(Set<MethodInformation> methodSet, Class<?> clazz) {
+        if (clazz == Object.class)
+            return;
+        Method[] methods = SecurityActions.getDeclaredMethods(clazz);
+        for (Method m : methods) {
+            int modifiers = m.getModifiers();
+            if (Modifier.isFinal(modifiers))
+                continue;
+            if (Modifier.isPrivate(modifiers))
+                continue;
+            if (Modifier.isStatic(modifiers))
+                continue;
+            if (Modifier.isVolatile(modifiers)) // Bridge method
+                continue;
+                
+            MethodInformation info = new MethodInformation(m);
+            if (methodSet.contains(info))
+                continue;
+            methodSet.add(info);
+        }
+        getProxyableMethods(methodSet, clazz.getSuperclass());
+    }
+
+
 }

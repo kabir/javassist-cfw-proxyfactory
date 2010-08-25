@@ -6,7 +6,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss</groupId>
-  <artifactId>javassist-cfw-proxy-factory</artifactId>
+  <artifactId>jboss-proxyfactory-javassist-cfw</artifactId>
   <name>Javassist ClassFileWriter ProxyFactory</name>
   <version>0.0.1-SNAPSHOT</version>
   <description>Proxy Factory using the Javassist ClassFileWriter</description>

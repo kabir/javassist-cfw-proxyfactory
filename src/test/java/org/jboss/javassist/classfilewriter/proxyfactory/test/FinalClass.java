@@ -26,10 +26,8 @@ package org.jboss.javassist.classfilewriter.proxyfactory.test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class ChildClass extends ParentClass{
-    
-    @Override
-    public String overridden(int i, int j) {
-        return String.valueOf(i);
+public final class FinalClass {
+    void test() {
+        
     }
 }

@@ -89,20 +89,22 @@ public final class ProxyFactory<T> {
     }
 
     private void createProxyMethod(MethodInformation methodInformation) {
-        final int localVariableSize = countParameterStackSize(methodInformation);
         context.beginMethod(methodInformation.getModifiers(), methodInformation.getName(), methodInformation.getFullSignature(), methodInformation.getExceptions());
 
         //Call the ProxyHandler.invokeMethod() with the parameters in an array
         Class<?>[] params = methodInformation.getMethod().getParameterTypes();
         context.addAnewArray("java/lang/Object", params.length);
+        int paramIndex = 0;
         for (int i = 0 ; i < params.length ; i++) {
+            paramIndex++;
             context.addDup();
             context.addIconst(i);
-            loadParameter(params[i], i);
+            loadParameter(params[i], paramIndex);
+            paramIndex = offsetParam(params[i], paramIndex);
             boxValue(params[i]);
             context.addAAStore();
         }
-        final int argsArrayIndex = localVariableSize + 1;
+        final int argsArrayIndex = paramIndex + 1;
         context.addAstore(argsArrayIndex);
         context.addAload(0);
         context.addGetField(context.getName(), PROXY_HANDLER_FIELD_NAME, PROXY_HANDLER_SIGNATURE);
@@ -114,8 +116,11 @@ public final class ProxyFactory<T> {
         if (!handler.finalCallInHandler(methodInformation.getMethod())) {
             //Call the super implementation of the method
             context.addAload(0);
+            paramIndex = 0;
             for (int i = 0 ; i < params.length ; i++) {
-                loadParameter(params[i], i);
+                paramIndex++;
+                loadParameter(params[i], paramIndex);
+                paramIndex = offsetParam(params[i], paramIndex);
             }
             context.addInvokeSpecial(ClassFileWriterContext.jvmClassName(clazz), methodInformation.getName(), methodInformation.getFullSignature());
         } else {
@@ -129,7 +134,7 @@ public final class ProxyFactory<T> {
         
         addReturn(methodInformation);
         //Add an extra local variable each for 'this' and for the Object[] passed to PH.invokeMethod()
-        context.endMethod(2 + localVariableSize);
+        context.endMethod(2 + paramIndex);
     }
 
     private void boxValue(Class<?> type) {
@@ -193,8 +198,17 @@ public final class ProxyFactory<T> {
         
     }
     
+    /**
+     * Long and double take an extra parameter slot
+     */
+    private int offsetParam(Class<?> type, int index) {
+        if (type == Double.TYPE || type == Long.TYPE)
+            index++;
+        return index;
+    }
+    
     private void loadParameter(Class<?> type, int index) {
-        index++; //xLOAD uses 1 based indexing
+        //xLOAD uses 1 based indexing
         if (!type.isPrimitive()) {
             context.addAload(index);
         }else {
@@ -211,26 +225,6 @@ public final class ProxyFactory<T> {
                 throw new IllegalArgumentException("Unknown primitive " + type);
             }
         }
-    }
-    
-    private int countParameterStackSize(MethodInformation methodInformation) {
-        Class<?>[] params = methodInformation.getMethod().getParameterTypes();
-        int i = 0;
-        for (Class<?> param : params) {
-            if (param == Double.TYPE || param == Long.TYPE)
-                i++;
-            i++;
-        }
-        
-        Class<?> rtn = methodInformation.getMethod().getReturnType();
-        int j = 0;
-        if (rtn != Void.TYPE) {
-            j++;
-            if (rtn == Double.TYPE || rtn == Long.TYPE)
-                j++;
-        }
-        
-        return Math.max(i, j);
     }
     
     private Class<T> generateClass() {
@@ -268,8 +262,6 @@ public final class ProxyFactory<T> {
 
     private static void checkClassModifiers(Class<?> clazz) {
         int modifier = clazz.getModifiers();
-        if (Modifier.isPublic(modifier))
-            return;
         if (Modifier.isPrivate(modifier))
             throw new IllegalArgumentException("Cannot proxy private class " + clazz.getName());
         if (Modifier.isFinal(modifier))

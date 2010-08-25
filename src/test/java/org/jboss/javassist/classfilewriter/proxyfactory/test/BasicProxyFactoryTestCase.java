@@ -23,11 +23,14 @@ package org.jboss.javassist.classfilewriter.proxyfactory.test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
 import org.junit.Test;
@@ -75,10 +78,102 @@ public class BasicProxyFactoryTestCase {
         
         Object ret = proxy.overridden(12, 10);
         assertEquals("overridden", handler.m.getName());
+        assertEquals(String.class, handler.m.getReturnType());
         assertEquals(2, handler.args.length);
         assertSame(target, handler.instance);
 
         assertTrue(ret instanceof String);
         assertEquals("12", ret);
+    }
+    
+    @SuppressWarnings("static-access")
+    @Test
+    public void testStaticMethodNotProxied() throws Exception {
+        CornerCaseClass target = new CornerCaseClass();
+        HandlerNotCallingTarget<CornerCaseClass> handler = new HandlerNotCallingTarget<CornerCaseClass>(target);
+        CornerCaseClass proxy = ProxyFactory.createProxy(CornerCaseClass.class, handler);
+        
+        proxy.staticMethod();
+        assertNull(handler.m);
+    }
+
+    @Test
+    public void testFinalMethodNotProxied() throws Exception {
+        CornerCaseClass target = new CornerCaseClass();
+        HandlerNotCallingTarget<CornerCaseClass> handler = new HandlerNotCallingTarget<CornerCaseClass>(target);
+        CornerCaseClass proxy = ProxyFactory.createProxy(CornerCaseClass.class, handler);
+        
+        proxy.finalMethod();
+        assertNull(handler.m);
+    }
+    
+    @Test
+    public void testPrivateMethodNotProxied() throws Exception {
+        CornerCaseClass target = new CornerCaseClass();
+        HandlerNotCallingTarget<CornerCaseClass> handler = new HandlerNotCallingTarget<CornerCaseClass>(target);
+        CornerCaseClass proxy = ProxyFactory.createProxy(CornerCaseClass.class, handler);
+        
+        for (Method m : proxy.getClass().getDeclaredMethods()) {
+            if (m.getName().equals("privateMethod")) {
+                fail("Should not have had private method");
+            }
+        }
+    }
+
+    @Test
+    public void testProtectedMethodProxied() throws Exception {
+        CornerCaseClass target = new CornerCaseClass();
+        HandlerNotCallingTarget<CornerCaseClass> handler = new HandlerNotCallingTarget<CornerCaseClass>(target);
+        CornerCaseClass proxy = ProxyFactory.createProxy(CornerCaseClass.class, handler);
+        
+        boolean found = false;
+        for (Method m : proxy.getClass().getDeclaredMethods()) {
+            if (m.getName().equals("protectedMethod")) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+    }
+
+
+    @Test
+    public void testPackageProtectedMethodProxied() throws Exception {
+        CornerCaseClass target = new CornerCaseClass();
+        HandlerNotCallingTarget<CornerCaseClass> handler = new HandlerNotCallingTarget<CornerCaseClass>(target);
+        CornerCaseClass proxy = ProxyFactory.createProxy(CornerCaseClass.class, handler);
+        
+        boolean found = false;
+        for (Method m : proxy.getClass().getDeclaredMethods()) {
+            if (m.getName().equals("packageProtectedMethod")) {
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found);
+    }
+    
+    @Test
+    public void testSeveralParametersWithDouhleAndLong() throws Exception {
+        CornerCaseClass target = new CornerCaseClass();
+        HandlerNotCallingTarget<CornerCaseClass> handler = new HandlerNotCallingTarget<CornerCaseClass>(target);
+        CornerCaseClass proxy = ProxyFactory.createProxy(CornerCaseClass.class, handler);
+        
+        assertEquals("12-34-12-5-3", proxy.mixedParameters(12, 34D, 12f, 5L, (short)3));
+        assertEquals("mixedParameters", handler.m.getName());
+        assertSame(target, handler.instance);
+    }
+    
+    @Test
+    public void testCannotProxyFinalClass() throws Exception {
+        FinalClass target = new FinalClass();
+        HandlerNotCallingTarget<FinalClass> handler = new HandlerNotCallingTarget<FinalClass>(target);
+        try {
+            ProxyFactory.createProxy(FinalClass.class, handler);
+            fail("Should have had error");
+        }catch(IllegalArgumentException expected) {
+        }
+        
+        
     }
 }

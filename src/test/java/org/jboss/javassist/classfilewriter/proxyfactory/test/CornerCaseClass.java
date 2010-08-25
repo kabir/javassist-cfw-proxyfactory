@@ -26,10 +26,40 @@ package org.jboss.javassist.classfilewriter.proxyfactory.test;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class ChildClass extends ParentClass{
+public class CornerCaseClass {
     
-    @Override
-    public String overridden(int i, int j) {
-        return String.valueOf(i);
+    static void staticMethod() {
+        
+    }
+    
+    final void finalMethod() {
+        
+    }
+    
+    @SuppressWarnings("unused")
+    private void privateMethod() {
+        
+    }
+    
+    protected void protectedMethod() {
+        
+    }
+    
+    void packageProtectedMethod() {
+        
+    }
+    
+    String mixedParameters(int i, double d, float f, long l, short s) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(i);
+        sb.append("-");
+        sb.append(Math.round(d));
+        sb.append("-");
+        sb.append(Math.round(f));
+        sb.append("-");
+        sb.append(l);
+        sb.append("-");
+        sb.append(s);
+        return sb.toString();
     }
 }

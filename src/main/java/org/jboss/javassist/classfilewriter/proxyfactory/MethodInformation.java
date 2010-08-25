@@ -102,10 +102,6 @@ final class MethodInformation {
         return method;
     }
     
-    String getParams() {
-        return params;
-    }
-
     int getModifiers() {
         return modifiers;
     }
@@ -114,10 +110,6 @@ final class MethodInformation {
         return name;
     }
 
-    String getReturnType() {
-        return returnType;
-    }
-    
     String getFullSignature() {
         if (fullSignature == null) {
             String sig = "(" + params + ")" + returnType;
@@ -156,7 +148,7 @@ final class MethodInformation {
         MethodInformation other = (MethodInformation)obj;
         if (!other.getName().equals(name))
             return false;
-        if (!other.getParams().equals(params))
+        if (!other.params.equals(params))
             return false;
         return true;
     }

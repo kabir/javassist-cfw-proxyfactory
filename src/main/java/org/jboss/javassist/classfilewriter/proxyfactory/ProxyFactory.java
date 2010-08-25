@@ -128,10 +128,6 @@ public final class ProxyFactory<T> {
             castAndUnboxValue(methodInformation.getMethod().getReturnType());
         }
         
-        //Debug only
-//        if (params.length > 0)
-//            loadParameter(params[0], 0);
-        
         addReturn(methodInformation);
         //Add an extra local variable each for 'this' and for the Object[] passed to PH.invokeMethod()
         context.endMethod(2 + paramIndex);
@@ -504,6 +500,4 @@ public final class ProxyFactory<T> {
           return primitiveClass;
        }
     }
-
-  
 }

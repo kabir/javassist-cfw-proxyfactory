@@ -485,17 +485,15 @@ class ClassFileWriterContext<T> {
         return bytes;
     }
 
-    Class<T> toClass(ClassLoader loader, ProtectionDomain domain) throws InvocationTargetException,
+    Class<? extends T> toClass(ClassLoader loader, ProtectionDomain domain) throws InvocationTargetException,
             IllegalAccessException {
 
         String name = this.name.replace('/', '.');
         byte[] bytes = getBytes();
         if (domain == null)
-            return (Class<T>) SecurityActions.invoke(defineClass1, loader, name, bytes, Integer.valueOf(0), Integer
-                    .valueOf(bytes.length));
+            return (Class<T>)SecurityActions.invoke(defineClass1, loader, name, bytes, Integer.valueOf(0), Integer.valueOf(bytes.length));
         else
-            return (Class<T>) SecurityActions.invoke(defineClass2, loader, name, bytes, Integer.valueOf(0), Integer
-                    .valueOf(bytes.length), domain);
+            return (Class<T>) SecurityActions.invoke(defineClass2, loader, name, bytes, Integer.valueOf(0), Integer.valueOf(bytes.length), domain);
     }
 
     private void addIndex(int i) {

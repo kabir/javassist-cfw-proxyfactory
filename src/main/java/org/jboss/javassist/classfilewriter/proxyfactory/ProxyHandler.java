@@ -23,8 +23,8 @@ package org.jboss.javassist.classfilewriter.proxyfactory;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Provide a subclass of this to handle proxy calls.
@@ -50,7 +50,7 @@ public abstract class ProxyHandler<T> {
         this.instance = instance;
     }
     
-    void setMethods(Set<MethodInformation> methods) {
+    void setMethods(List<MethodInformation> methods) {
         Map<String, Method> map = new HashMap<String, Method>(methods.size());
         for (MethodInformation mi : methods)
             map.put(mi.getNameAndFullSignature(), mi.getMethod());

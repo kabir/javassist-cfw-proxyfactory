@@ -21,18 +21,15 @@
  */
 package org.jboss.javassist.classfilewriter.proxyfactory;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.WeakHashMap;
 
 /**
  * Factory to create proxies for a class. The proxies are currently
@@ -45,8 +42,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class ProxyFactory<T> {
 
-    private static final AtomicInteger COUNTER = new AtomicInteger();
-
     private static final String PROXY_HANDLER_FIELD_NAME = "_proxy$Handler";
 
     private static final String PROXY_HANDLER_FIELD_TYPE = ProxyHandler.class.getName().replace('.', '/');
@@ -56,19 +51,26 @@ public final class ProxyFactory<T> {
     private static final String SET_PROXY_HANDLER_SIGNATURE = "(L" + ProxyHandler.class.getName().replace('.', '/') + ";)V";
 
     private static final String[] INTERFACES = new String[] { ProxyHandlerSetter.class.getName().replace('.', '/') };
+    
+    private static final Map<Class<?>, Map<String, WeakReference<Class<?>>>> CACHE = new WeakHashMap<Class<?>, Map<String, WeakReference<Class<?>>>>();
 
     private final Class<T> clazz;
     private final ProxyHandler<T> handler;
-    private final Set<MethodInformation> methodSet;
+    private final List<MethodInformation> methods;
     private final ClassFileWriterContext<T> context;
+    private final byte[] handledFilter;
+    private final byte[] finalCallInHandlerFilter;
+    
 
-    private ProxyFactory(Class<T> clazz, ProxyHandler<T> handler, Set<MethodInformation> methodSet) {
+    private ProxyFactory(String proxyName, Class<T> clazz, ProxyHandler<T> handler, List<MethodInformation> methods, byte[] handledFilter, byte[] finalCallInHandlerFilter) {
         this.clazz = clazz;
         this.handler = handler;
-        this.methodSet = methodSet;
+        this.methods = methods;
+        this.handledFilter = handledFilter;
+        this.finalCallInHandlerFilter = finalCallInHandlerFilter;
 
         // TODO might need an interface on the proxy to set the handler?
-        context = new ClassFileWriterContext<T>(clazz.getName() + "$$Proxy$$" + COUNTER.incrementAndGet(), clazz
+        context = new ClassFileWriterContext<T>(proxyName, clazz
                 .getName(), INTERFACES);
     }
 
@@ -91,26 +93,93 @@ public final class ProxyFactory<T> {
 
         checkClassModifiers(clazz);
         checkDefaultConstructor(clazz);
-        Set<MethodInformation> methodSet = MethodInformation.getProxyableMethods(clazz);
-        ProxyFactory<T> factory = new ProxyFactory<T>(clazz, handler, methodSet);
-        Class<T> proxyClass = factory.createProxy();
+        List<MethodInformation> methods = MethodInformation.getSortedProxyableMethods(clazz);
+        byte[] handledFilter = filterHandledMethods(methods, handler);
+        byte[] finalCallInHandlerFilter = filterFinalCallInHandlerMethods(methods, handler);
+        String proxyName = getProxyClassName(clazz, handledFilter, finalCallInHandlerFilter);
+        
+        Class<? extends T> proxyClass = checkCache(clazz, proxyName);
+        if (proxyClass == null) {
+        	ProxyFactory<T> factory = new ProxyFactory<T>(proxyName, clazz, handler, methods, handledFilter, finalCallInHandlerFilter);
+        	factory.createProxy();
+        	proxyClass = defineClassAndPutInCache(factory, proxyName);
+        }
 
+        return instantiateProxy(proxyClass, methods, handler);
+    }
+    
+    private static <T> Class<? extends T> checkCache(Class<T> clazz, String proxyName){
+    	synchronized (CACHE) {
+        	Map<String, WeakReference<Class<?>>> map = CACHE.get(clazz);
+        	if (map == null)
+        		return null;
+        	WeakReference<Class<?>> proxyClassRef = map.get(proxyName);
+        	if (proxyClassRef == null)
+        		return null;
+        	
+        	Class<?> proxyClass = proxyClassRef.get();
+        	if (proxyClass == null) {
+        		try {
+	                proxyClass = getClassLoader(clazz).loadClass(proxyName);
+                } catch (ClassNotFoundException e) {
+	                throw new RuntimeException("Could not load previously created proxy class " + proxyName, e);
+                }
+        	}
+        	return proxyClass.asSubclass(clazz);
+        }
+    }
+    
+    private static <T> Class<? extends T> defineClassAndPutInCache(ProxyFactory<T> factory, String proxyName){
+    	synchronized (CACHE) {
+    		
+    		Class<? extends T>  proxyClass = checkCache(factory.clazz, proxyName);
+    		if (proxyClass != null)
+    			return proxyClass;
+
+    		
+            ClassLoader cl = SecurityActions.getClassLoader(factory.clazz);
+            if (cl == null)
+                cl = SecurityActions.getSystemClassLoader();
+            try {
+                proxyClass = factory.context.toClass(cl, factory.clazz.getProtectionDomain());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            
+        	Map<String, WeakReference<Class<?>>> map = CACHE.get(factory.clazz);
+        	if (map == null) {
+        		map = new HashMap<String, WeakReference<Class<?>>>();
+        		CACHE.put(factory.clazz, map);
+        	}
+        	
+        	map.put(proxyName, new WeakReference<Class<?>>(proxyClass));
+        	return proxyClass.asSubclass(factory.clazz);
+        }
+    }
+    
+    private static ClassLoader getClassLoader(Class<?> clazz) {
+        ClassLoader cl = SecurityActions.getClassLoader(clazz);
+        if (cl == null)
+            cl = SecurityActions.getSystemClassLoader();
+        return cl;
+    }
+    
+    private static <T> T instantiateProxy(Class<? extends T> proxyClass, List<MethodInformation> methods, ProxyHandler<T> handler) {
         try {
             T proxy = proxyClass.newInstance();
             ((ProxyHandlerSetter) proxy).setProxyHandler(handler);
-            handler.setMethods(methodSet);
+            handler.setMethods(methods);
             return proxy;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Class<T> createProxy() {
+    private void createProxy() {
         createProxyHandlerFieldAndSetter();
 
-        for (MethodInformation m : methodSet)
-            createProxyMethod(m);
-        return generateClass();
+        for (int i = 0 ; i < methods.size() ; i++)
+            createProxyMethod(i, methods.get(i));
     }
 
     private void createProxyHandlerFieldAndSetter() {
@@ -123,7 +192,7 @@ public final class ProxyFactory<T> {
         context.endMethod(2);
     }
 
-    private void createProxyMethod(MethodInformation methodInformation) {
+    private void createProxyMethod(int index, MethodInformation methodInformation) {
         final Method method = methodInformation.getMethod();
         context.beginMethod(methodInformation.getModifiers(), methodInformation.getName(), methodInformation.getFullSignature(), methodInformation.getExceptions());
 
@@ -149,7 +218,7 @@ public final class ProxyFactory<T> {
         context.addInvokeVirtual(PROXY_HANDLER_FIELD_TYPE, "invokeMethod", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;");
 
         
-        if (!handler.finalCallInHandler(method)) {
+        if (finalCallInHandlerFilter[index] == 0) {
             //Call the super implementation of the method
             context.addAload(0);
             paramIndex = 0;
@@ -259,19 +328,6 @@ public final class ProxyFactory<T> {
         }
     }
     
-    private Class<T> generateClass() {
-        debug(context.getBytes());
-        ClassLoader cl = SecurityActions.getClassLoader(clazz);
-        if (cl == null)
-            cl = SecurityActions.getSystemClassLoader();
-
-        try {
-            return context.toClass(cl, clazz.getProtectionDomain());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private static void checkClassModifiers(Class<?> clazz) {
         int modifier = clazz.getModifiers();
         if (Modifier.isPrivate(modifier))
@@ -293,22 +349,49 @@ public final class ProxyFactory<T> {
         }
     }
 
-    private void debug(byte[] classbytes) {
-        BufferedOutputStream out = null;
-        try {
-            out = new BufferedOutputStream(new FileOutputStream(new File("Debug.class")));
-            out.write(classbytes);
-        } catch (Exception e) {
-            // AutoGenerated
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                out.close();
-            } catch (IOException ignore) {
-            }
-        }
-
+    private static String getProxyClassName(Class<?> clazz, byte[] methodFilter, byte[] finalCallInWrapperFilter) {
+    	StringBuilder sb = new StringBuilder(clazz.getName());
+    	sb.append("$$");
+    	for (byte b : methodFilter)
+    		sb.append(b);
+    	sb.append("$");
+    	for (byte b : finalCallInWrapperFilter)
+    		sb.append(b);
+    	return sb.toString();
     }
+    
+    private static byte[] filterHandledMethods(List<MethodInformation> methods, ProxyHandler<?> handler) {
+    	byte[] handledMethods = new byte[methods.size()];
+    	for (int i = 0 ; i < handledMethods.length ; i++) {
+    		handledMethods[i] = handler.isHandled(methods.get(i).getMethod()) ? (byte)1 : (byte)0;
+    	}
+    	return handledMethods;
+    }
+    
+    private static byte[] filterFinalCallInHandlerMethods(List<MethodInformation> methods, ProxyHandler<?> handler) {
+    	byte[] handledMethods = new byte[methods.size()];
+    	for (int i = 0 ; i < handledMethods.length ; i++) {
+    		handledMethods[i] = handler.finalCallInHandler(methods.get(i).getMethod())  ? (byte)1 : (byte)0;
+    	}
+    	return handledMethods;
+    }
+    
+//    private void debug(byte[] classbytes) {
+//        BufferedOutputStream out = null;
+//        try {
+//            out = new BufferedOutputStream(new FileOutputStream(new File("Debug.class")));
+//            out.write(classbytes);
+//        } catch (Exception e) {
+//            // AutoGenerated
+//            throw new RuntimeException(e);
+//        } finally {
+//            try {
+//                out.close();
+//            } catch (IOException ignore) {
+//            }
+//        }
+//
+//    }
     
     private static class Boxing
     {

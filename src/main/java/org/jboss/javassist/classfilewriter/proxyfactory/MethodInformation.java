@@ -23,11 +23,15 @@ package org.jboss.javassist.classfilewriter.proxyfactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.WeakHashMap;
 
 /**
@@ -39,7 +43,7 @@ import java.util.WeakHashMap;
 final class MethodInformation {
     private static final String[] NO_EXCEPTIONS = new String[0];
     
-    private static final Map<Class<?>, Set<MethodInformation>> CACHE = Collections.synchronizedMap(new WeakHashMap<Class<?>, Set<MethodInformation>>());
+    private static final Map<Class<?>, List<MethodInformation>> CACHE = Collections.synchronizedMap(new WeakHashMap<Class<?>, List<MethodInformation>>());
     
     static final Map<Class<?>, Character> PRIMITIVE_DESCRIPTORS;
     static {
@@ -69,7 +73,7 @@ final class MethodInformation {
     
     
     
-    MethodInformation(Method method) {
+    private MethodInformation(Method method) {
         this.method = method;
         modifiers = method.getModifiers();
         name = method.getName();
@@ -165,17 +169,27 @@ final class MethodInformation {
         return hashCode; 
     }
     
-    static Set<MethodInformation> getProxyableMethods(Class<?> clazz) {
+    static List<MethodInformation> getSortedProxyableMethods(Class<?> clazz) {
         
-        Set<MethodInformation> methodSet = CACHE.get(clazz); 
-        if (methodSet != null)
-            return methodSet;
+        List<MethodInformation> methods = CACHE.get(clazz); 
+        if (methods != null)
+            return methods;
             
-        methodSet = new HashSet<MethodInformation>();
+        SortedSet<MethodInformation> methodSet = new TreeSet<MethodInformation>(new Comparator<MethodInformation>() {
+
+			@Override
+            public int compare(MethodInformation m1, MethodInformation m2) {
+				int nameCompare = m1.getName().compareTo(m2.getName());
+				if (nameCompare != 0)
+					return nameCompare;
+	            return m1.params.compareTo(m2.params);
+            }
+		});
         getProxyableMethods(methodSet, clazz);
         
-        CACHE.put(clazz, methodSet);
-        return new HashSet<MethodInformation>(methodSet);
+        methods = Collections.unmodifiableList(new ArrayList<MethodInformation>(methodSet)); 
+        CACHE.put(clazz, new ArrayList<MethodInformation>(methods));
+        return methods;
     }
 
     private static void getProxyableMethods(Set<MethodInformation> methodSet, Class<?> clazz) {

@@ -91,7 +91,7 @@ public abstract class ProxyHandler<T> {
     }
     
     
-    public final Object invokeMethod(int index, Object[] args) {
+    public final Object invokeMethod(int index, Object[] args) throws Throwable{
         Method method = methods[index];
         if (method == null)
             throw new IllegalArgumentException("No method in " + instance.getClass().getName() + " with index " + index);
@@ -107,6 +107,6 @@ public abstract class ProxyHandler<T> {
      * @param args the arguments of the call
      * @return the value of calling the method
      */
-    protected abstract Object invokeMethod(T instance, Method m, Object[] args);
+    protected abstract Object invokeMethod(T instance, Method m, Object[] args) throws Throwable;
     
 }

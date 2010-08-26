@@ -19,28 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
-
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-@SuiteClasses({BasicProxyFactoryTestCase.class,
-    PrimitiveProxyFactoryCalledByWrapperTestCase.class, 
-    PrimitiveProxyFactoryCalledByHandlerTestCase.class,
-    BoxedProxyFactoryCalledByWrapperTestCase.class,
-    BoxedProxyFactoryCalledByHandlerTestCase.class,
-    PrimitiveArrayProxyFactoryCalledByWrapperTestCase.class,
-    PrimitiveArrayProxyFactoryCalledByHandlerTestCase.class,
-    BoxedArrayProxyFactoryCalledByWrapperTestCase.class,
-    BoxedArrayProxyFactoryCalledByHandlerTestCase.class,
-    ProxyAndFilterTestCase.class})
-@RunWith(Suite.class)
-public class AllProxyManagerTests {
-
+public class SomeClass {
+	
+	public int method(int i) {
+		return i;
+	}
+	
+	public String method(String s) {
+		return s;
+	}
 }

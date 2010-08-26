@@ -33,12 +33,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.CheckedException;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.ChildClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.ClassWithInnerClasses;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.CornerCaseClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.ExceptionClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.FinalClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.HandlerNotCallingTarget;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.PrimitiveClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.UncheckedException;
 import org.junit.Test;
 
 /**
@@ -200,5 +203,33 @@ public class BasicProxyFactoryTestCase {
             fail("Should have had error");
         }catch (IllegalArgumentException expected) {
         }
+    }
+    
+    @Test
+    public void testCheckedException() throws Exception {
+        ExceptionClass target = new ExceptionClass();
+        HandlerNotCallingTarget<ExceptionClass> handler = new HandlerNotCallingTarget<ExceptionClass>(target);
+        ExceptionClass proxy = ProxyFactory.createProxy(ExceptionClass.class, handler);
+        
+        try {
+        	proxy.raiseCheckedException();
+        }catch (CheckedException expected) {
+        	return;
+		}
+        fail("Should have had checked exception");
+    }
+    
+    @Test
+    public void testUncheckedException() throws Exception {
+        ExceptionClass target = new ExceptionClass();
+        HandlerNotCallingTarget<ExceptionClass> handler = new HandlerNotCallingTarget<ExceptionClass>(target);
+        ExceptionClass proxy = ProxyFactory.createProxy(ExceptionClass.class, handler);
+        
+        try {
+        	proxy.raiseUncheckedException();
+        }catch (UncheckedException expected) {
+        	return;
+		}
+        fail("Should have had unchecked exception");
     }
 }

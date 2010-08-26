@@ -40,6 +40,6 @@ import org.junit.runners.Suite.SuiteClasses;
     BoxedArrayProxyFactoryCalledByWrapperTestCase.class,
     BoxedArrayProxyFactoryCalledByHandlerTestCase.class})
 @RunWith(Suite.class)
-public class AllTests {
+public class AllProxyManagerTests {
 
 }

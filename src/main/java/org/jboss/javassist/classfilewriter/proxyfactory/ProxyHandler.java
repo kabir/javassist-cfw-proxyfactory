@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.javassist.classfilewriter.proxyfactory.MethodInformationCache.MethodInformation;
+
 /**
  * Provide a subclass of this to handle proxy calls.
  * 

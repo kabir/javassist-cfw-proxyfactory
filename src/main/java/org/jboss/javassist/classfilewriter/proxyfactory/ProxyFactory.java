@@ -351,20 +351,11 @@ public final class ProxyFactory<T> {
     private static String getProxyClassName(Class<?> clazz, byte[] methodFilter, byte[] finalCallInWrapperFilter) {
     	StringBuilder sb = new StringBuilder(clazz.getName());
     	sb.append("$$");
-    	for (byte b : methodFilter)
-    		sb.append(b);
+    	ClassNameByteCompressor.appendIdentifier(sb, methodFilter);
     	sb.append("$");
-    	for (byte b : finalCallInWrapperFilter)
-    		sb.append(b);
+    	ClassNameByteCompressor.appendIdentifier(sb, finalCallInWrapperFilter);
+
     	return sb.toString();
-    }
-    
-    private static byte[] filterHandledMethods(MethodInformation[] methods, ProxyHandler<?> handler) {
-    	byte[] handledMethods = new byte[methods.length];
-    	for (int i = 0 ; i < handledMethods.length ; i++) {
-    		handledMethods[i] = handler.isHandled(methods[i].getMethod()) ? (byte)1 : (byte)0;
-    	}
-    	return handledMethods;
     }
     
     private static byte[] filterFinalCallInHandlerMethods(MethodInformation[] methods, ProxyHandler<?> handler) {
@@ -373,5 +364,43 @@ public final class ProxyFactory<T> {
     		handledMethods[i] = handler.finalCallInHandler(methods[i].getMethod())  ? (byte)1 : (byte)0;
     	}
     	return handledMethods;
+    }
+    
+    
+    private static byte[] filterHandledMethods(MethodInformation[] methods, ProxyHandler<?> handler) {
+    	byte[] handledMethods = new byte[methods.length];
+    	for (int i = 0 ; i < handledMethods.length ; i++) {
+    		handledMethods[i] = handler.isHandled(methods[i].getMethod()) ? (byte)1 : (byte)0;
+    	}
+    	return handledMethods;
+    }
+
+    private static class ClassNameByteCompressor{
+        private static void appendIdentifier(StringBuilder sb, byte[] bits) {
+        	if (bits.length == 0) {
+        		sb.append("X");
+        		return;
+        	}
+        	
+        	int count = 0;
+        	byte last = bits[0];
+        	for (int i = 0 ; i < bits.length ; i++) {
+        		if (bits[i] == last)
+        			count++;
+        		else {
+        			appendCountAndBit(sb, count, last);
+        			count = 1;
+        			last = bits[i];
+        		}
+        	}
+        	appendCountAndBit(sb, count, last);
+        }
+        
+        private static void appendCountAndBit(StringBuilder sb, int count, byte b) {
+        	if (count > 1) {
+        		sb.append(Integer.toHexString(count));
+        	}
+        	sb.append(b == 0 ? 'Y' : 'Z');
+        }
     }
 }

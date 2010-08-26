@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.test;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
 
 import java.lang.reflect.Method;
 
@@ -30,22 +30,31 @@ import org.jboss.javassist.classfilewriter.proxyfactory.ProxyHandler;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public class HandlerNotCallingTarget<T> extends ProxyHandler<T>{
+public class HandlerCallingTarget<T> extends ProxyHandler<T>{
 
-    Method m;
-    Object[] args;
-    T instance;
+    public Method m;
     
-    protected HandlerNotCallingTarget(T instance) {
+    public Object[] replacementArgs;
+    
+    public HandlerCallingTarget(T instance, Object[] replacementArgs) {
         super(instance);
+        this.replacementArgs = replacementArgs;
+    }
+    
+    @Override
+    protected boolean finalCallInHandler(Method m) {
+        return true;
     }
 
     @Override
     protected Object invokeMethod(T instance, Method m, Object[] args) {
         this.m = m;
-        this.args = args;
-        this.instance = instance;
-        return null;
+        
+        try {
+            return m.invoke(instance, replacementArgs);
+        }catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
 }

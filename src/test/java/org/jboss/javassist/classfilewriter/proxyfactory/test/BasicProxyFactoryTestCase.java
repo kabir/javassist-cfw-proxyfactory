@@ -23,8 +23,8 @@ package org.jboss.javassist.classfilewriter.proxyfactory.test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertNotSame;
+import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertSame;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
@@ -37,7 +37,7 @@ import org.jboss.javassist.classfilewriter.proxyfactory.support.ChildClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.ClassWithInnerClasses;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.CornerCaseClass;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.FinalClass;
-import org.jboss.javassist.classfilewriter.proxyfactory.support.JohnExampleFailure;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.HandlerNotCallingTarget;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.PrimitiveClass;
 import org.junit.Test;
 
@@ -201,18 +201,4 @@ public class BasicProxyFactoryTestCase {
         }catch (IllegalArgumentException expected) {
         }
     }
-    
-    @Test
-    public void testJohnExampleFailure() throws Exception {
-        JohnExampleFailure target = new JohnExampleFailure();
-        HandlerNotCallingTarget<JohnExampleFailure> handler = new HandlerNotCallingTarget<JohnExampleFailure>(target);
-        JohnExampleFailure proxy = ProxyFactory.createProxy(JohnExampleFailure.class, handler);
-        
-        assertNull(proxy.getOther());
-        assertEquals("getOther", handler.m.getName());
-        assertEquals(0, handler.args.length);
-        assertSame(target, handler.instance);
-    }
-    
-    
 }

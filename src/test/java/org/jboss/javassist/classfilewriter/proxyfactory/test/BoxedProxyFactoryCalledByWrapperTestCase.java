@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertTrue;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.ProxyFactory;
 import org.jboss.javassist.classfilewriter.proxyfactory.support.BoxedClass;
+import org.jboss.javassist.classfilewriter.proxyfactory.support.HandlerNotCallingTarget;
 import org.junit.Test;
 
 /**

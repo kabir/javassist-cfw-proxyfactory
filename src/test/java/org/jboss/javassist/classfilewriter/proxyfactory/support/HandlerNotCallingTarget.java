@@ -19,13 +19,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.javassist.classfilewriter.proxyfactory.support.annotations;
+package org.jboss.javassist.classfilewriter.proxyfactory.support;
+
+import java.lang.reflect.Method;
+
+import org.jboss.javassist.classfilewriter.proxyfactory.ProxyHandler;
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision: 1.1 $
  */
-public @interface ManagedBean {
-    String value(); 
+public class HandlerNotCallingTarget<T> extends ProxyHandler<T>{
+
+    public Method m;
+    public Object[] args;
+    public T instance;
+    
+    public HandlerNotCallingTarget(T instance) {
+        super(instance);
+    }
+
+    @Override
+    protected Object invokeMethod(T instance, Method m, Object[] args) {
+        this.m = m;
+        this.args = args;
+        this.instance = instance;
+        return null;
+    }
+    
 }

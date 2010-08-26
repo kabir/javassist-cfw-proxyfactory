@@ -55,16 +55,14 @@ public final class ProxyFactory<T> {
     private static final Map<Class<?>, Map<String, WeakReference<Class<?>>>> CACHE = new WeakHashMap<Class<?>, Map<String, WeakReference<Class<?>>>>();
 
     private final Class<T> clazz;
-    private final ProxyHandler<T> handler;
     private final MethodInformation[] methods;
     private final ClassFileWriterContext<T> context;
     private final byte[] handledFilter;
     private final byte[] finalCallInHandlerFilter;
     
 
-    private ProxyFactory(String proxyName, Class<T> clazz, ProxyHandler<T> handler, MethodInformation[] methods, byte[] handledFilter, byte[] finalCallInHandlerFilter) {
+    private ProxyFactory(String proxyName, Class<T> clazz, MethodInformation[] methods, byte[] handledFilter, byte[] finalCallInHandlerFilter) {
         this.clazz = clazz;
-        this.handler = handler;
         this.methods = methods;
         this.handledFilter = handledFilter;
         this.finalCallInHandlerFilter = finalCallInHandlerFilter;
@@ -98,7 +96,7 @@ public final class ProxyFactory<T> {
         
         Class<? extends T> proxyClass = checkCache(clazz, proxyName);
         if (proxyClass == null) {
-        	ProxyFactory<T> factory = new ProxyFactory<T>(proxyName, clazz, handler, methods, handledFilter, finalCallInHandlerFilter);
+        	ProxyFactory<T> factory = new ProxyFactory<T>(proxyName, clazz, methods, handledFilter, finalCallInHandlerFilter);
         	factory.createProxy();
         	proxyClass = defineClassAndPutInCache(factory, proxyName);
         }

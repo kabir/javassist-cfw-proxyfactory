@@ -26,7 +26,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -57,13 +56,13 @@ public final class ProxyFactory<T> {
 
     private final Class<T> clazz;
     private final ProxyHandler<T> handler;
-    private final List<MethodInformation> methods;
+    private final MethodInformation[] methods;
     private final ClassFileWriterContext<T> context;
     private final byte[] handledFilter;
     private final byte[] finalCallInHandlerFilter;
     
 
-    private ProxyFactory(String proxyName, Class<T> clazz, ProxyHandler<T> handler, List<MethodInformation> methods, byte[] handledFilter, byte[] finalCallInHandlerFilter) {
+    private ProxyFactory(String proxyName, Class<T> clazz, ProxyHandler<T> handler, MethodInformation[] methods, byte[] handledFilter, byte[] finalCallInHandlerFilter) {
         this.clazz = clazz;
         this.handler = handler;
         this.methods = methods;
@@ -90,11 +89,9 @@ public final class ProxyFactory<T> {
         if (handler == null)
             throw new IllegalArgumentException("Null handler");
 
-        // TODO cache classes
-
         checkClassModifiers(clazz);
         checkDefaultConstructor(clazz);
-        List<MethodInformation> methods = MethodInformationCache.getSortedProxyableMethods(clazz);
+        MethodInformation[] methods = MethodInformationCache.getSortedProxyableMethods(clazz);
         byte[] handledFilter = filterHandledMethods(methods, handler);
         byte[] finalCallInHandlerFilter = filterFinalCallInHandlerMethods(methods, handler);
         String proxyName = getProxyClassName(clazz, handledFilter, finalCallInHandlerFilter);
@@ -138,8 +135,7 @@ public final class ProxyFactory<T> {
     		if (proxyClass != null)
     			return proxyClass;
 
-    		
-            ClassLoader cl = SecurityActions.getClassLoader(factory.clazz);
+            ClassLoader cl = getClassLoader(factory.clazz);
             if (cl == null)
                 cl = SecurityActions.getSystemClassLoader();
             try {
@@ -166,7 +162,7 @@ public final class ProxyFactory<T> {
         return cl;
     }
     
-    private static <T> T instantiateProxy(Class<? extends T> proxyClass, List<MethodInformation> methods, ProxyHandler<T> handler) {
+    private static <T> T instantiateProxy(Class<? extends T> proxyClass, MethodInformation[] methods, ProxyHandler<T> handler) {
         try {
             T proxy = proxyClass.newInstance();
             ((ProxyHandlerSetter) proxy).setProxyHandler(handler);
@@ -180,8 +176,8 @@ public final class ProxyFactory<T> {
     private void createProxy() {
         createProxyHandlerFieldAndSetter();
 
-        for (int i = 0 ; i < methods.size() ; i++)
-            createProxyMethod(i, methods.get(i));
+        for (int i = 0 ; i < methods.length ; i++)
+            createProxyMethod(i, methods[i]);
     }
 
     private void createProxyHandlerFieldAndSetter() {
@@ -197,8 +193,6 @@ public final class ProxyFactory<T> {
     private void createProxyMethod(int methodIndex, MethodInformation methodInformation) {
     	if (handledFilter[methodIndex] == 0)
     		return;
-    	
-    	
     	
         final Method method = methodInformation.getMethod();
         context.beginMethod(methodInformation.getModifiers(), methodInformation.getName(), methodInformation.getFullSignature(), methodInformation.getExceptions());
@@ -220,9 +214,9 @@ public final class ProxyFactory<T> {
         context.addAstore(argsArrayIndex);
         context.addAload(0);
         context.addGetField(context.getName(), PROXY_HANDLER_FIELD_NAME, PROXY_HANDLER_SIGNATURE);
-        context.addLdc(context.addStringInfo(methodInformation.getNameAndFullSignature()));
+        context.addIconst(methodIndex);
         context.addAload(argsArrayIndex);
-        context.addInvokeVirtual(PROXY_HANDLER_FIELD_TYPE, "invokeMethod", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;");
+        context.addInvokeVirtual(PROXY_HANDLER_FIELD_TYPE, "invokeMethod", "(I[Ljava/lang/Object;)Ljava/lang/Object;");
 
         
         if (finalCallInHandlerFilter[methodIndex] == 0) {
@@ -367,18 +361,18 @@ public final class ProxyFactory<T> {
     	return sb.toString();
     }
     
-    private static byte[] filterHandledMethods(List<MethodInformation> methods, ProxyHandler<?> handler) {
-    	byte[] handledMethods = new byte[methods.size()];
+    private static byte[] filterHandledMethods(MethodInformation[] methods, ProxyHandler<?> handler) {
+    	byte[] handledMethods = new byte[methods.length];
     	for (int i = 0 ; i < handledMethods.length ; i++) {
-    		handledMethods[i] = handler.isHandled(methods.get(i).getMethod()) ? (byte)1 : (byte)0;
+    		handledMethods[i] = handler.isHandled(methods[i].getMethod()) ? (byte)1 : (byte)0;
     	}
     	return handledMethods;
     }
     
-    private static byte[] filterFinalCallInHandlerMethods(List<MethodInformation> methods, ProxyHandler<?> handler) {
-    	byte[] handledMethods = new byte[methods.size()];
+    private static byte[] filterFinalCallInHandlerMethods(MethodInformation[] methods, ProxyHandler<?> handler) {
+    	byte[] handledMethods = new byte[methods.length];
     	for (int i = 0 ; i < handledMethods.length ; i++) {
-    		handledMethods[i] = handler.finalCallInHandler(methods.get(i).getMethod())  ? (byte)1 : (byte)0;
+    		handledMethods[i] = handler.finalCallInHandler(methods[i].getMethod())  ? (byte)1 : (byte)0;
     	}
     	return handledMethods;
     }

@@ -15,8 +15,7 @@
     <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
-      <!-- snapshot contains fix for https://jira.jboss.org/browse/JASSIST-131  -->
-      <version>3.14.0-SNAPSHOT</version>
+      <version>3.13.0-GA</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

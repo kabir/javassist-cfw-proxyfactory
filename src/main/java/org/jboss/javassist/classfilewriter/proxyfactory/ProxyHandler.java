@@ -22,9 +22,6 @@
 package org.jboss.javassist.classfilewriter.proxyfactory;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.jboss.javassist.classfilewriter.proxyfactory.MethodInformationCache.MethodInformation;
 
@@ -38,7 +35,8 @@ public abstract class ProxyHandler<T> {
 
     private final T instance;
     
-    private volatile Map<String, Method> methods;
+    /** The sorted array of methods */
+    private volatile Method[] methods;
     
     /**
      * Constructor
@@ -52,25 +50,10 @@ public abstract class ProxyHandler<T> {
         this.instance = instance;
     }
     
-    void setMethods(List<MethodInformation> methods) {
-        Map<String, Method> map = new HashMap<String, Method>(methods.size());
-        for (MethodInformation mi : methods)
-            map.put(mi.getNameAndFullSignature(), mi.getMethod());
-        this.methods = map;
-    }
-    
-    /**
-     * Gets a method from its name and signature
-     * 
-     * @param nameAndFullDescription the name and signature of the method called
-     * @return the method
-     * @throws IllegalArgumentException if the method was not found
-     */
-    protected final Method getMethod(String nameAndFullDescription) {
-        Method method = methods.get(nameAndFullDescription);
-        if (method == null)
-            throw new IllegalArgumentException("No method in " + instance.getClass().getName() + " called " + nameAndFullDescription);
-        return method;
+    void setMethods(MethodInformation[] methods) {
+    	this.methods = new Method[methods.length];
+    	for (int i = 0 ; i < methods.length ; i++)
+    		this.methods[i] = methods[i].getMethod();
     }
     
     /**
@@ -108,15 +91,20 @@ public abstract class ProxyHandler<T> {
     }
     
     
-    public final Object invokeMethod(String nameAndFullDescription, Object[] args) {
-        Method m = getMethod(nameAndFullDescription);
-        return invokeMethod(instance, m, args);
+    public final Object invokeMethod(int index, Object[] args) {
+        Method method = methods[index];
+        if (method == null)
+            throw new IllegalArgumentException("No method in " + instance.getClass().getName() + " with index " + index);
+
+        return invokeMethod(instance, method, args);
     }
     
     /**
      * Override to handle the method calls
      * 
-     * @param nameAndFullDescription the name and signature of the method called
+     * @param instance the instance we are invoking on
+     * @param m the method being called
+     * @param args the arguments of the call
      * @return the value of calling the method
      */
     protected abstract Object invokeMethod(T instance, Method m, Object[] args);

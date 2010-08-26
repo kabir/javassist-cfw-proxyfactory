@@ -44,7 +44,7 @@ public class MethodInformationCache {
     
     private static final Map<Class<?>, List<WeakMethodInformation>> CACHE = Collections.synchronizedMap(new WeakHashMap<Class<?>, List<WeakMethodInformation>>());
     
-    static List<MethodInformation> getSortedProxyableMethods(Class<?> clazz) {
+    static MethodInformation[] getSortedProxyableMethods(Class<?> clazz) {
         
         List<WeakMethodInformation> methods = CACHE.get(clazz); 
         if (methods == null) {
@@ -66,7 +66,7 @@ public class MethodInformationCache {
         List<MethodInformation> result = new ArrayList<MethodInformation>(methods.size());
         for (WeakMethodInformation m : methods)
         	result.add(new MethodInformation(m));
-        return result;
+        return result.toArray(new MethodInformation[result.size()]);
     }
 
     private static void getProxyableMethods(Set<WeakMethodInformation> methodSet, Class<?> clazz) {
@@ -162,12 +162,6 @@ public class MethodInformationCache {
         	sb.append(returnType);
         }
         
-        String getNameAndFullSignature() {
-        	StringBuilder sb = new StringBuilder(getName());
-        	getFullSignature(sb);
-        	return sb.toString();
-        }
-        
         @Override
         public boolean equals(Object obj) {
             if (obj.getClass() != this.getClass())
@@ -235,10 +229,6 @@ public class MethodInformationCache {
 
         String getFullSignature() {
         	return delegate.getFullSignature();
-        }
-        
-        String getNameAndFullSignature() {
-        	return delegate.getNameAndFullSignature();
         }
     }
 
